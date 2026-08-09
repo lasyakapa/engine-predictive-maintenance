@@ -1,0 +1,19 @@
+# Model artefact - stored on Hugging Face Model Hub
+backend_sources/*.joblib
+
+# Dataset - stored on Hugging Face Dataset Hub
+data/*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.env
+
+# Google Colab / temporary files
+*.log
