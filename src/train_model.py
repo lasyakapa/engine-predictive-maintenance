@@ -2,6 +2,9 @@
 import os
 from pathlib import Path
 
+import json
+from datetime import datetime, timezone
+
 import joblib
 import pandas as pd
 
@@ -76,8 +79,7 @@ def train_model(train_df):
     print("Best Parameters:")
     print(grid_search.best_params_)
 
-    return grid_search.best_estimator_
-
+    return grid_search.best_estimator_, grid_search.best_params_
 
 def evaluate_model(model, test_df):
     X_test = test_df.drop("Engine Condition", axis=1)
@@ -85,16 +87,18 @@ def evaluate_model(model, test_df):
 
     y_pred = model.predict(X_test)
 
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
+    metrics = {
+        "accuracy": accuracy_score(y_test, y_pred),
+        "precision": precision_score(y_test, y_pred),
+        "recall": recall_score(y_test, y_pred),
+        "f1_score": f1_score(y_test, y_pred),
+    }
 
     print("Test Performance:")
-    print(f"Accuracy: {accuracy:.6f}")
-    print(f"Precision: {precision:.6f}")
-    print(f"Recall: {recall:.6f}")
-    print(f"F1-Score: {f1:.6f}")
+    for name, value in metrics.items():
+        print(f"{name}: {value:.6f}")
+
+    return metrics
 
 
 def save_and_register_model(model):
@@ -124,7 +128,30 @@ def save_and_register_model(model):
     )
 
     print("Model uploaded successfully to Hugging Face.")
+    
+def save_metadata(best_params, metrics, train_shape, test_shape):
+    metadata_dir = Path("artifacts")
+    metadata_dir.mkdir(parents=True, exist_ok=True)
 
+    metadata = {
+        "model": "RandomForestClassifier",
+        "dataset": DATASET_REPO,
+        "model_repository": MODEL_REPO,
+        "training_rows": train_shape[0],
+        "testing_rows": test_shape[0],
+        "training_features": train_shape[1] - 1,
+        "testing_features": test_shape[1] - 1,
+        "best_parameters": best_params,
+        "test_metrics": metrics,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    metadata_path = metadata_dir / "model_metadata.json"
+
+    with open(metadata_path, "w") as f:
+        json.dump(metadata, f, indent=2)
+
+    print(f"Metadata saved to: {metadata_path}")
 
 def main():
     print("Loading train and test data...")
@@ -134,13 +161,20 @@ def main():
     print("Testing shape:", test_df.shape)
 
     print("Training and tuning Random Forest...")
-    model = train_model(train_df)
+    model, best_params = train_model(train_df)
 
-    print("Evaluating final model...")
-    evaluate_model(model, test_df)
+    metrics = evaluate_model(model, test_df)
 
-    print("Saving and registering model...")
     save_and_register_model(model)
+
+    save_metadata(
+        best_params,
+        metrics,
+        train_df.shape,
+        test_df.shape,
+    )
+        
+    
 
 
 if __name__ == "__main__":

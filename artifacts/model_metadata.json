@@ -1,0 +1,23 @@
+{
+  "model": "RandomForestClassifier",
+  "dataset": "Lasya679/engine-predictive-maintenance",
+  "model_repository": "Lasya679/engine-predictive-maintenance-model",
+  "training_rows": 15628,
+  "testing_rows": 3907,
+  "training_features": 6,
+  "testing_features": 6,
+  "best_parameters": {
+    "max_depth": 5,
+    "max_features": "sqrt",
+    "min_samples_leaf": 1,
+    "min_samples_split": 5,
+    "n_estimators": 100
+  },
+  "test_metrics": {
+    "accuracy": 0.6593294087535193,
+    "precision": 0.6727716727716728,
+    "recall": 0.8948436865611044,
+    "f1_score": 0.7680780623802056
+  },
+  "generated_at": "2026-08-09T17:48:09.961191+00:00"
+}

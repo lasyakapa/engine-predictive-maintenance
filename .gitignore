@@ -1,5 +1,6 @@
 # Model artefact - stored on Hugging Face Model Hub
 backend_sources/*.joblib
+artifacts/*.joblib
 
 # Dataset - stored on Hugging Face Dataset Hub
 data/*.csv
