@@ -1,4 +1,3 @@
-
 name: Predictive Maintenance ML Pipeline
 
 on:
@@ -37,3 +36,17 @@ jobs:
         with:
           name: predictive-maintenance-model
           path: artifacts/engine_predictive_maintenance_model.joblib
+
+      - name: Commit updated model metadata to main
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add artifacts/model_metadata.json
+
+          if git diff --cached --quiet; then
+            echo "No metadata changes to commit."
+          else
+            git commit -m "Update model metadata [skip ci]"
+            git push origin HEAD:main
+          fi
